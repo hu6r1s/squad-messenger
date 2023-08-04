@@ -23,7 +23,7 @@ const Signup = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    axios.post("http://localhost:5000/api/register", formData).then(() => {
+    axios.post(`${process.env.REACT_APP_URL}/api/register`, formData).then(() => {
       navigate("/")
     }).catch((error) => {
       console.log(error)

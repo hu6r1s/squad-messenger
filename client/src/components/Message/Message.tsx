@@ -5,34 +5,42 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { UserState } from "../../States/UserState";
 
-interface Message {
+interface MessageType {
   id: number;
   sender: string;
   receiver: string;
   content: string;
 }
 
-const Message = ({ }) => {
+const Message = () => {
   const navigate = useNavigate();
   const token = useRecoilValue(UserState.token);
-  const [showSendMessage, setShowSendMessage] = useState(true);
-  const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
+  const [selectedTab, setSelectedTab] = useState('send');
+  const [receivedMessages, setReceivedMessages] = useState<MessageType[]>([]);
   const [messages, setMessages] = useState({
     receiver: "",
     content: ""
   })
 
   const handleSendClick = () => {
-    setShowSendMessage(true);
+    setSelectedTab('send');
   };
 
   const handleReceiveClick = () => {
-    setShowSendMessage(false);
+    setSelectedTab('receive');
   };
+
+  const handleMessageClick = (sender: string) => {
+    setSelectedTab("send");
+    setMessages({
+      receiver: sender,
+      content: "",
+    })
+  }
 
   const logoutHandler = async () => {
     try {
-      await axios.post("http://localhost:5000/api/logout");
+      await axios.post(`${process.env.REACT_APP_URL}/api/logout`);
       toast.success("안녕히 가세요.")
       navigate("/")
     } catch (error) {
@@ -44,7 +52,7 @@ const Message = ({ }) => {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:5000/api/send", messages, {
+      await axios.post(`${process.env.REACT_APP_URL}/api/send`, messages, {
         headers: {
           Authorization: `bearer ${token}`,
         }
@@ -68,7 +76,7 @@ const Message = ({ }) => {
   };
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/inbox", {
+    axios.get(`${process.env.REACT_APP_URL}/api/inbox`, {
       headers: {
         Authorization: `bearer ${token}`,
       }
@@ -85,18 +93,18 @@ const Message = ({ }) => {
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
             <li className="flex-grow">
-              <div onClick={handleSendClick} className="inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group">
+              <div onClick={handleSendClick} className={`inline-flex items-center justify-center p-4 ${selectedTab === 'send' ? "text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" : "border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"} group`}>
                 Send
               </div>
             </li>
             <li className="flex-grow">
-              <div onClick={handleReceiveClick} className="inline-flex items-center justify-center p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500 group" aria-current="page">
+              <div onClick={handleReceiveClick} className={`inline-flex items-center justify-center p-4 ${selectedTab === 'receive' ? "text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" : "border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"} group`} aria-current="page">
                 Receive
               </div>
             </li>
           </ul>
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            {showSendMessage ? (
+            {selectedTab === "send" ? (
               <form className="space-y-4 md:space-y-6" onSubmit={submitHandler}>
                 <div>
                   <label htmlFor="Receiver" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Receiver</label>
@@ -124,7 +132,7 @@ const Message = ({ }) => {
                   {
                     receivedMessages.length > 0 ? (
                       receivedMessages.map((message) => (
-                        <tr key={message.id} className="bg-white dark:bg-gray-800">
+                        <tr key={message.id} className="bg-white dark:bg-gray-800" onClick={() => handleMessageClick(message.sender)}>
                           <td className="px-2 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {message.sender}
                           </td>
