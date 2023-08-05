@@ -14,7 +14,7 @@ const Signin = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    axios.post(`${process.env.REACT_APP_URL}/api/login`, {
+    axios.post("http://localhost:3000/api/login", {
       username,
       password
     }).then((response: AxiosResponse) => {

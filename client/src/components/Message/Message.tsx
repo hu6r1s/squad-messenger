@@ -40,7 +40,7 @@ const Message = () => {
 
   const logoutHandler = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_URL}/api/logout`);
+      await axios.post("http://localhost:3000/api/logout");
       toast.success("안녕히 가세요.")
       navigate("/")
     } catch (error) {
@@ -52,7 +52,7 @@ const Message = () => {
     e.preventDefault();
 
     try {
-      await axios.post(`${process.env.REACT_APP_URL}/api/send`, messages, {
+      await axios.post("http://localhost:3000/api/send", messages, {
         headers: {
           Authorization: `bearer ${token}`,
         }
@@ -76,7 +76,7 @@ const Message = () => {
   };
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_URL}/api/inbox`, {
+    axios.get("http://localhost:3000/api/inbox", {
       headers: {
         Authorization: `bearer ${token}`,
       }
